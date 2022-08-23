@@ -17,9 +17,50 @@ from kneed import KneeLocator
 warnings.filterwarnings("ignore")
 
 # Include title of page.
-st.write("### National Security Agency - Centers of Technology Development by NAICS")
+st.markdown("### National Security Agency Cybersecurity Collaboration Center: Identifying Centers of Technology Sectors Across the Globe")
+
+# Include by line.
+st.markdown(r'''
+    <h5>Ryan Ripper<br/>Summer 2022 - Georgetown University</h5>
+    ''', unsafe_allow_html = True)
 
 #####
+
+# Include header for section.
+st.markdown("#### 1. Introduction")
+
+st.markdown(r'''
+    This dashboard serves as a tool to identify centers of development across different technology sectors around the globe.
+    ''')
+
+st.markdown(r'''
+    All contracts that have been awarded by the United States Government for the calendar year 2021 have been loaded into this dashboard. Data collection and processing has been completed using Python scripts that are available within the author's [Github Repository](https://github.com/ryanripper/nsa_map_technology_centers_summer2022).
+    ''')
+
+st.markdown(r'''
+    The user has the option to consider all contracts across all technology sectors or to subset these contracts according to an awardee's respective North American Industry Classification System (NAICS) Code.
+    ''')
+
+st.markdown(r'''
+    The dashboard uses two distinct Machine Learning algorithms to identify groups of awardees within a particular technology sector. Those algorithsm are [DBSCAN](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html) (Density-Based Spatial Clustering of Applications with Noise) and [OPTICS](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html) (Ordering Points To Identify the Clustering Structure). Both take advantage of the Python module "scikit-learn" to find core samples of high density and expand clusters from them. We leverage the physical location of each awardee based on given Latitude and Longitude as our unlabeled set of data to feed into our algorithms in identifying geographic cluster.
+    ''')
+    
+st.markdown(r'''
+    When the user selects DBSCAN as their machine learning algorithm of choice, the dashboard assists the user in identifying the algorithm's associated hyperparameter, "epsilon." Epsilon is defined as the maximum distance between two samples for one to be considered as in the neighborhood of the other. Figure 1 assists in determining a suitable value for epsilon by calculating the distance to the nearest $n$ points for each point (using Haversine distance), sorting, and plotting the results. The optimal value for epsilon will be found at the point of maximum curvature where the user can select the automated optimal value of epsilon or choose their own value and observe how the clusters are identified by DBSCAN in Figure 2A.
+    ''')
+    
+st.markdown(r'''
+    The OPTICS machine learning algorithm does not rely on user-tuned hyperparameters. Instead, the algorithm keeps cluster hierarchy for a variable neighborhood radius. This functionality automatically identifies the clusters in Figure 2B.
+    ''')
+    
+st.markdown(r'''
+    Figures 2A and 2B display the results of the machine learning clustering algorithms. The map displays each awardee from the subset of total contracts according to the selected NAICS code. Each awardee is colored according to the corresponding cluster group identified by the respective algorithm.
+    ''')
+
+#####
+
+# Inclue header for section.
+st.markdown("#### 2. Select NAICS Code and Machine Learning Algorithm")
 
 # Load NAICS data.
 naics_final = \
@@ -44,13 +85,13 @@ naics_final = empty_row.append(naics_final.sort_values("Title"), ignore_index = 
 title_codes = naics_final.Title_Code
 
 # Create dropdown with NAICS code options.
-naics_title = st.selectbox("Select NAICS Code to first evaluate optimal Epsilon value for DBSCAN Machine Learning Algorithm:", title_codes)
+naics_title = st.selectbox("Select NAICS Code to Subset All Awarded Government Contracts in CY 2021:", title_codes)
 
 # Find associated NAICS code from Title - Code selected.
 naics_code = naics_final["Code"].loc[naics_final["Title_Code"] == naics_title].iloc[0]
 
 # Add radio button to ask which ML model to use. Choose DBSCAN to start.
-model_type = st.radio("Select ML model to identify clusters", ("DBSCAN", "Optical"), 0)
+model_type = st.radio("Select Machine Learning Model to Identify Technology Clusters for Selected Subset:", ("DBSCAN", "OPTICS"), 0)
 
 #####
 
@@ -75,10 +116,10 @@ data_final = geopandas.GeoDataFrame(data_final, geometry = "geometry")
 
 #####
 
-# Function that returns a tuple of coordinates and subawardees with given NAICS for both DBSCAN and Optical and plot to find the optimal epsilon for DBSCAN.
+# Function that returns a tuple of coordinates and subawardees with given NAICS for both DBSCAN and OPTICS and plot to find the optimal epsilon for DBSCAN.
 def get_optimal(model_type, naics = ""):
     """
-    The get_optimal function returns a tuple of coordinates and subawardees with given NAICS for both DBSCAN and Optical and creates plot to find the optimal epsilon for DBSCAN.
+    The get_optimal function returns a tuple of coordinates and subawardees with given NAICS for both DBSCAN and OPTICS and creates plot to find the optimal epsilon for DBSCAN.
   
     Arguments
     -----
@@ -113,7 +154,7 @@ def get_optimal(model_type, naics = ""):
     # Determine optimal epsilon for DBSCAN.
     if model_type == "DBSCAN":
         # Instantiate the Nearest Neighbors algorithm on two neighbors.
-        neigh = NearestNeighbors(n_neighbors = 2)
+        neigh = NearestNeighbors(n_neighbors = 2, metric = "haversine")
 
         # Fit the model to the distinct coordinates.
         nbrs = neigh.fit(coords)
@@ -124,11 +165,11 @@ def get_optimal(model_type, naics = ""):
         # Sort the distances in ascending order.
         distances = np.sort(distances, axis = 0)
 
-        # Collect distances only.
-        distances = distances[:, 1]
+        # Collect distances only. Convert to km from Haversine distance.
+        distances = distances[:, 1] * 6371
 
         # Plot distances.
-        fig = px.line(distances, labels = {"index" : "", "value" : ""}, title = "Determine Optimal Epsilon Value for DBSCAN")
+        fig = px.line(distances, labels = {"index" : "", "value" : "Distance Between Two Points (km)"}, title = "Figure 1. Determine Optimal Epsilon Value for DBSCAN")
 
         # Remove legend from plot.
         fig.update_layout(showlegend = False,
@@ -145,14 +186,11 @@ def get_optimal(model_type, naics = ""):
                               curve = "convex", # parameter from figure
                               direction = "increasing") # parameter from figure
         
-        # Get x-coordinate from knee point.
-        elbow_point_x = kneedle.elbow
+        # Get y-coordinate of elbow point.
+        elbow_point_y = round(kneedle.elbow_y, 4)
         
-        # Get y-coordinate from knee point.
-        elbow_point_y = kneedle.elbow_y
-        
-        # Display the coordinates of the knee.
-        st.write(f"Elbow Point: ({elbow_point_x}, {elbow_point_y})")
+        # Display the coordinate of the elbow.
+        st.markdown(f"Elbow Point (Point of Maximum Curvature in Figure 1): {elbow_point_y} km")
     
     # Return coordinates and subawardees with given NAICS.
     return(coords, data_final_naics)
@@ -161,6 +199,9 @@ def get_optimal(model_type, naics = ""):
 
 # If ML model chosen is DBSCAN.
 if model_type == "DBSCAN":
+    # Include header for section.
+    st.markdown("#### 3. Parameter Results and Selection for DBSCAN")
+    
     # Run function to get results.
     optimal_results = get_optimal(model_type, naics_code)
 
@@ -170,8 +211,8 @@ if model_type == "DBSCAN":
     # Select test subset of all subaward data and plot optimal epislon for DBSCAN.
     data_final_test = optimal_results[1]
 
-    # Enter value for epislon
-    epsilon = st.number_input("Enter Epsilon Value for DBSCAN at the Point of Maximum Curvature:")
+    # Enter value for epsilon. Convert back to Haversine distance.
+    epsilon = st.number_input("Enter Epsilon Value (km) for DBSCAN at the Point of Maximum Curvature from Figure 1:") / 6371
 
     # Only continue if epsilon has been input.
     if epsilon != 0:
@@ -186,9 +227,12 @@ if model_type == "DBSCAN":
 
         # Identify the number of clusters without outlier.
         n_clusters = len(cluster_labels)
+        
+        # Include header for section.
+        st.markdown("#### 4. DBSCAN Clustering Results")
 
         # Show how many clusters were identified.
-        st.write(f"Number of Clusters (Without Outliers): {n_clusters}")
+        st.markdown(f"Number of Clusters (Without Outliers): {n_clusters}")
 
         # Add labels to the coordinates.
         coords["Cluster"] = db.labels_
@@ -256,14 +300,19 @@ if model_type == "DBSCAN":
         # Add cluster data to world map.
         cluster_results_test.explore(
             m = map, # Pass the map object.
-            tooltip = ["Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
+            tooltip = ["Cluster", "Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
             color = "black" # Color the points.
         )
         
+        # Include title to figure.
+        st.markdown(r'''
+            <p style="text-align: center;"">Figure 2A. Map of DBSCAN Clusters for Subset of Subaward Contracts</p>
+            ''', unsafe_allow_html = True)
+        
         # Map everything to the page.
         st_data = st_folium(map, width = 725, height = 500)
-# If ML model chosen is OPTICAL.
-elif model_type == "Optical":
+# If ML model chosen is OPTICS.
+elif model_type == "OPTICS":
     # Run function to get results.
     optimal_results = get_optimal(model_type, naics_code)
 
@@ -284,9 +333,12 @@ elif model_type == "Optical":
 
     # Identify the number of clusters without outlier.
     n_clusters = len(cluster_labels)
+    
+    # Include header for section.
+    st.markdown("#### 3. OPTICS Clustering Results")
 
     # Show how many clusters were identified.
-    st.write(f"Number of Clusters (Without Outliers): {n_clusters}")
+    st.markdown(f"Number of Clusters (Without Outliers): {n_clusters}")
 
     # Add labels to the coordinates.
     coords["Cluster"] = optics.labels_
@@ -357,6 +409,11 @@ elif model_type == "Optical":
         tooltip = ["Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
         color = "black" # Color the points.
     )
+    
+    # Include title to figure.
+    st.markdown(r'''
+        <p style="text-align: center;"">Figure 2B. Map of OPTICS Clusters for Subset of Subaward Contracts</p>
+        ''', unsafe_allow_html = True)
     
     # Map everything to the page.
     st_data = st_folium(map, width = 725, height = 500)
