@@ -96,7 +96,7 @@ def load_data():
 	# Load NAICS data.
 	naics_final = \
 	(pd
-	 .read_csv("/Users/ryanripper/Desktop/NSA/nsa_map_technology_centers_summer2022/final/final_naics.csv")
+	 .read_csv("./final/final_naics.csv")
 	)
 	
 	# Convert each column to a string.
@@ -118,7 +118,7 @@ def load_data():
 	# Load final data.
 	data_final = \
 	(pd
-	 .read_csv("/Users/ryanripper/Desktop/NSA/nsa_map_technology_centers_summer2022/final/final_subawards.csv")
+	 .read_csv("./final/final_subawards.csv")
 	)
 	
 	# Collect code columns to convert to strings.
