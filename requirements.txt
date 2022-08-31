@@ -7,5 +7,4 @@ sklearn
 plotly
 folium
 mapclassify
-warnings
 kneed
