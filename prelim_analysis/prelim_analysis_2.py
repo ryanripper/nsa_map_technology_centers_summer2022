@@ -95,7 +95,7 @@ def plot_subaward_map(naics = ""):
     )
 
     # Save the map.
-    map.save("/Users/ryanripper/Desktop/NSA/nsa_map_technology_centers_summer2022/interactive_map.html")
+    map.save("/Users/ryanripper/Desktop/NSA/nsa_map_technology_centers_summer2022/prelim_analysis/interactive_map.html")
 
 # Run function to plot map and save to HTML.
 plot_subaward_map()
