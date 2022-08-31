@@ -1,0 +1,11 @@
+streamlit
+streamlit_folium
+pandas
+numpy
+geopandas
+sklearn
+plotly
+folium
+mapclassify
+warnings
+kneed
