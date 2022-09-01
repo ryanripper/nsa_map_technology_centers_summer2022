@@ -8,3 +8,4 @@ plotly
 folium
 mapclassify
 kneed
+matplotlib
