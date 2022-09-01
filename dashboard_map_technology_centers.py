@@ -332,6 +332,12 @@ if model_type == "DBSCAN":
 		.astype(int)
 		.map("{:,}".format)
 		)
+		
+		# Add cluster label to dataframe.
+		cluster_results["Cluster Label"] = \
+		(cluster_results["Cluster"]
+		 .astype(int)
+		) + 1 
 
 		# Convert cluster data into a Geopandas Data Frame and remove outlier cluster group (now 0).
 		cluster_results_test = geopandas.GeoDataFrame(cluster_results, geometry = geopandas.points_from_xy(cluster_results.Longitude, cluster_results.Latitude)).query("Cluster != -1")
@@ -339,7 +345,7 @@ if model_type == "DBSCAN":
 		# Add cluster data to world map.
 		cluster_results_test.explore(
 			m = map, # Pass the map object.
-			tooltip = ["Cluster", "Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
+			tooltip = ["Cluster Label", "Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
 			color = "black" # Color the points.
 		)
 
@@ -435,6 +441,12 @@ elif model_type == "OPTICS":
 	 .astype(int)
 	 .map("{:,}".format)
 	)
+	
+	# Add cluster label to dataframe.
+	cluster_results["Cluster Label"] = \
+	(cluster_results["Cluster"]
+	 .astype(int)
+	) + 1 
 
 	# Convert cluster data into a Geopandas Data Frame and remove outlier cluster group (now 0).
 	cluster_results_test = geopandas.GeoDataFrame(cluster_results, geometry = geopandas.points_from_xy(cluster_results.Longitude, cluster_results.Latitude)).query("Cluster != -1")
@@ -442,7 +454,7 @@ elif model_type == "OPTICS":
 	# Add cluster data to world map.
 	cluster_results_test.explore(
 	    m = map, # Pass the map object.
-	    tooltip = ["Cluster", "Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
+	    tooltip = ["Cluster Label", "Cluster Average Subaward Amount", "Number of Subawardees in Cluster"], # Show custom tooltip.
 	    color = "black" # Color the points.
 	)
 
