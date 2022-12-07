@@ -3,7 +3,7 @@ streamlit_folium
 pandas
 numpy
 geopandas
-sklearn
+scikit-learn
 plotly
 folium
 mapclassify
