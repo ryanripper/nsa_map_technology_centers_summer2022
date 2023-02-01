@@ -79,7 +79,7 @@ with st.expander("Output", False):
 st.markdown("#### 2. Select NAICS Code and Machine Learning Algorithm")
 
 # Cached function that loads the required data and transforms for subsequent use within dashboard.
-@st.cache
+@st.cache(allow_output_mutation = True)
 def load_data():
 	"""
 	The load_data function returns a tuple of loaded data to be used throughout the dashboard..
