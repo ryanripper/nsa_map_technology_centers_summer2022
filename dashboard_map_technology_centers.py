@@ -79,7 +79,7 @@ with st.expander("Output", False):
 st.markdown("#### 2. Select NAICS Code and Machine Learning Algorithm")
 
 # Cached function that loads the required data and transforms for subsequent use within dashboard.
-@st.cache_data(allow_output_mutation = True)
+@st.cache_data()
 def load_data():
 	"""
 	The load_data function returns a tuple of loaded data to be used throughout the dashboard..
@@ -152,7 +152,7 @@ model_type = st.radio("Select Machine Learning Model to Identify Technology Clus
 #####
 
 # A cached function that returns a tuple of coordinates, subawardees with given NAICS, distance between awards, and the point of maximum curvature for the associated elbow plot for both DBSCAN and OPTICS.
-@st.cache_data(allow_output_mutation = True)
+@st.cache_data()
 def get_optimal(data_final, model_type, naics = ""):
 	"""
 	The get_optimal function returns a tuple of coordinates, subawardees with given NAICS, distance between awards, and the point of maximum curvature for the associated elbow plot for both DBSCAN and OPTICS.
