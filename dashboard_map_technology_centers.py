@@ -153,13 +153,13 @@ model_type = st.radio("Select Machine Learning Model to Identify Technology Clus
 
 # A cached function that returns a tuple of coordinates, subawardees with given NAICS, distance between awards, and the point of maximum curvature for the associated elbow plot for both DBSCAN and OPTICS.
 @st.cache_data()
-def get_optimal(data_final, model_type, naics = ""):
+def get_optimal(_data_final, model_type, naics = ""):
 	"""
 	The get_optimal function returns a tuple of coordinates, subawardees with given NAICS, distance between awards, and the point of maximum curvature for the associated elbow plot for both DBSCAN and OPTICS.
 
 	Arguments
 	-----
-	data_final: dataframe
+	_data_final: dataframe
 		A dataframe of all award contracts.
 	
 	model_type: string
@@ -175,17 +175,17 @@ def get_optimal(data_final, model_type, naics = ""):
 
 	# Collect data associated with the given NAICS.
 	if len(naics) == 2:
-	    data_final_naics = data_final.query("Code_2 == '" + naics + "'")
+	    data_final_naics = _data_final.query("Code_2 == '" + naics + "'")
 	elif len(naics) == 3:
-	    data_final_naics = data_final.query("Code_3 == '" + naics + "'")
+	    data_final_naics = _data_final.query("Code_3 == '" + naics + "'")
 	elif len(naics) == 4:
-	    data_final_naics = data_final.query("Code_4 == '" + naics + "'")
+	    data_final_naics = _data_final.query("Code_4 == '" + naics + "'")
 	elif len(naics) == 5:
-	    data_final_naics = data_final.query("Code_5 == '" + naics + "'")
+	    data_final_naics = _data_final.query("Code_5 == '" + naics + "'")
 	elif len(naics) == 6:
-	    data_final_naics = data_final.query("Code_6 == '" + naics + "'")
+	    data_final_naics = _data_final.query("Code_6 == '" + naics + "'")
 	else:
-	    data_final_naics = data_final
+	    data_final_naics = _data_final
 	    
 	# Collect distinct Longitude and Latitude of test subset.
 	coords = data_final_naics[["Latitude", "Longitude"]].drop_duplicates()
