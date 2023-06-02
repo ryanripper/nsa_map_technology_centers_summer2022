@@ -110,7 +110,7 @@ def load_data():
 	empty_row = pd.DataFrame({"Code" : [""], "Title" : ["All"], "Title_Code" : ["All"]})
 
 	# Combine results.
-	naics_final = empty_row.append(naics_final.sort_values("Title"), ignore_index = True)
+	naics_final = pd.concat([empty_row, naics_final.sort_values("Title")], ignore_index = True)
 
 	# Collect NAICS Title - Code combos.
 	title_codes = naics_final.Title_Code
